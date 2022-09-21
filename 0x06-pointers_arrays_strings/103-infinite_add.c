@@ -1,86 +1,85 @@
+/*
+ * File: 102-infinite_add.c
+ */
+
 #include "main.h"
 
+char *add_strings(char *n1, char *n2, char *r, int r_index);
+char *infinite_add(char *n1, char *n2, char *r, int size_r);
+
 /**
- * _strlen - returns the length of the string
- * @s: the string
+ * add_strings - Adds the numbers stored in two strings.
+ * @n1: The string containing the first number to be added.
+ * @n2: The string containing the second number to be added.
+ * @r: The buffer to store the result.
+ * @r_index: The current index of the buffer.
  *
- * Return: the length of the s string
+ * Return: If r can store the sum - a pointer to the result.
+ *         If r cannot store the sum - 0.
  */
-
-int _strlen(char *s)
+char *add_strings(char *n1, char *n2, char *r, int r_index)
 {
-	int i = 0;
+	int num, tens = 0;
 
-	while (s[i])
-		i++;
-	return (i);
-}
-
-/**
- * rev_n_string - reverses a string until the n th term
- * @s: the string to be reversed
- * @n: the n th term index
- */
-
-void rev_n_string(char *s, int n)
-{
-	int i = 0;
-	int j = n - 1, max = j / 2;
-	char tmp;
-
-	while (j > max)
+	for (; *n1 && *n2; n1--, n2--, r_index--)
 	{
-		tmp = s[i];
-		s[i++] = s[j];
-		s[j--] = tmp;
+		num = (*n1 - '0') + (*n2 - '0');
+		num += tens;
+		*(r + r_index) = (num % 10) + '0';
+		tens = num / 10;
 	}
-}
 
-/**
- * infinite_add - adds two numbers
- * @n1: the first number
- * @n2: the second number
- * @r: the buffer to store the result
- * @size_r: the buffer size
- *
- * Return: pointer to the result if buffor is not overflowed, else 0
- */
+	for (; *n1; n1--, r_index--)
+	{
+		num = (*n1 - '0') + tens;
+		*(r + r_index) = (num % 10) + '0';
+		tens = num / 10;
+	}
 
-char	*infinite_add(char *n1, char *n2, char *r, int size_r)
-{
-	int l1 = _strlen(n1), l2 = _strlen(n2);
-	int ret = 0, j = 0, k = 0, tmp, a, b;
+	for (; *n2; n2--, r_index--)
+	{
+		num = (*n2 - '0') + tens;
+		*(r + r_index) = (num % 10) + '0';
+		tens = num / 10;
+	}
 
-	if (l1 >= size_r || l2 >= size_r)
+	if (tens && r_index >= 0)
+	{
+		*(r + r_index) = (tens % 10) + '0';
+		return (r + r_index);
+	}
+
+	else if (tens && r_index < 0)
 		return (0);
 
-	while (k < l1 || k < l2)
-	{
-		if (k >= l1)
-			a = 0;
-		else
-			a = n1[l1 - k - 1] - '0';
+	return (r + r_index + 1);
+}
+/**
+ * infinite_add - Adds two numbers.
+ * @n1: The first number to be added.
+ * @n2: The second number to be added.
+ * @r: The buffer to store the result.
+ * @size_r: The buffer size.
+ *
+ * Return: If r can store the sum - a pointer to the result.
+ *         If r cannot store the sum - 0.
+ */
+char *infinite_add(char *n1, char *n2, char *r, int size_r)
+{
+	int index, n1_len = 0, n2_len = 0;
 
-		if (k >= l2)
-			b = 0;
-		else
-			b = n2[l2 - k - 1] - '0';
+	for (index = 0; *(n1 + index); index++)
+		n1_len++;
 
-		tmp = a + b + ret;
-		ret = (tmp >= 10) ? 1 : 0;
-		r[k++] = (tmp % 10) + '0';
-	}
+	for (index = 0; *(n2 + index); index++)
+		n2_len++;
 
-	if (ret == 1)
-	{
-		if (k < size_r - 1)
-			r[k++] = '1';
-		else
-			return (0);
-	}
-	j = k;
-	while (j <= size_r)
-		r[j++] = '\0';
-	rev_n_string(r, k);
-	return (r);
+	if (size_r <= n1_len + 1 || size_r <= n2_len + 1)
+		return (0);
+
+	n1 += n1_len - 1;
+	n2 += n2_len - 1;
+	*(r + size_r) = '\0';
+
+	return (add_strings(n1, n2, r, --size_r));
 }
