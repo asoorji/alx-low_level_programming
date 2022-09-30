@@ -1,3 +1,3 @@
 #!/bin/bash
-gcc -c *.c
-ar rc liball.a *o
+gcc -std=gnu89 -c *.c
+ar rc liball.a *.o
